@@ -1,0 +1,11 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: benchmarks
+spec:
+  host: benchmarks.apps.smaug.na.operate-first.cloud
+  tls:
+    termination: edge
+  to:
+    kind: Service
+    name: results-server

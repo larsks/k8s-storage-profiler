@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: storage-profiler
+commonLabels:
+  app: storage-profiler
+
+resources:
+  - namespace.yaml
+  - pvc/nfs-target.yaml
+  - pvc/rbd-target.yaml
+  - obc/fio-results.yaml
+  - jobs/fio-nfs.yaml
+  - jobs/fio-rbd.yaml
+  - deployments/results-server.yaml
+  - services/results-server.yaml
+  - routes/benchmark.yaml
+
+configMapGenerator:
+  - name: fio-config
+    files:
+      - fio/job.conf
+      - fio/run-and-report.sh

@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: results-server
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        component: results-server
+    spec:
+      containers:
+        - name: results-server
+          image: docker.io/pottava/s3-proxy:latest
+          ports:
+            - containerPort: 8080
+              name: http
+          envFrom:
+            - secretRef:
+                name: fio-results
+          env:
+            - name: APP_PORT
+              value: "8080"
+            - name: DIRECTORY_LISTINGS
+              value: "true"
+            - name: DIRECTORY_LISTINGS_FORMAT
+              value: "html"
+            - name: AWS_S3_BUCKET
+              valueFrom:
+                configMapKeyRef:
+                  name: fio-results
+                  key: BUCKET_NAME
+            - name: AWS_API_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: fio-results
+                  key: BUCKET_HOST
+            - name: INSECURE_TLS
+              value: "true"

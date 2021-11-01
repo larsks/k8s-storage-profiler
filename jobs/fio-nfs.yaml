@@ -1,0 +1,41 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: storage-profiler-nfs
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      volumes:
+        - name: fio-results
+          emptyDir: {}
+        - name: nfs-target
+          persistentVolueClaim:
+            name: nfs-target
+        - name: fio-config
+          configMap:
+            name: fio-config
+
+      containers:
+        - name: fio
+          image: quay.io/larsks/fio:latest
+          volumeMounts:
+            - name: nfs-target
+              mountPath: /target
+            - name: fio-config
+              mountPath: /config
+            - name: fio-results
+              mountPath: /results
+          workingDir: /results
+          env:
+            - name: TEST_NAME
+              value: fio-nfs
+          envFrom:
+            - secretRef:
+                name: fio-results
+            - configMapRef:
+                name: fio-results
+          command:
+            - /bin/bash
+          args:
+            - /config/run-and-report.sh
